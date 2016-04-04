@@ -18,6 +18,8 @@ app.get("test") { request in
 
 app.resource("users", controller: UserController.self)
 
+app.resource("users-limited", only: [.show, .index], controller: UserController.self)
+
 //MARK: Request data
 
 app.post("jsondata") { request in

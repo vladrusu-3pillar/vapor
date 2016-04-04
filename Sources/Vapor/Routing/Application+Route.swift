@@ -26,6 +26,13 @@ extension String: StringInitializable {
 }
 
 extension Application {
+    public enum Resource {
+        case index, store, show, update, destroy
+
+        static var all: [Resource] {
+            return [.index, .store, .show, .update, .destroy]
+        }
+    }
 
     public final func any(path: String, handler: Route.Handler) {
         self.get(path, handler: handler)
@@ -41,42 +48,66 @@ extension Application {
 
         Note: You are responsible for pluralizing your endpoints.
     */
-    public final func resource<Resource: ResourceController>(path: String, makeControllerWith controllerFactory: () -> Resource) {
+    public final func resource<T: ResourceController>(
+        path: String,
+        only resources: [Resource] = Resource.all,
+        makeControllerWith controllerFactory: () -> T
+    ) {
         //GET /entities
-        self.get(path) { request in
-            return try controllerFactory().index(request)
+        if resources.contains(.show) {
+            self.get(path) { request in
+                return try controllerFactory().index(request)
+            }
         }
 
         //POST /entities
-        self.post(path) { request in
-            return try controllerFactory().index(request)
+        if resources.contains(.store) {
+            self.post(path) { request in
+                return try controllerFactory().store(request)
+            }
         }
 
         //GET /entities/:id
-        self.get(path, Resource.Item.self) { request, item in
-            return try controllerFactory().show(request, item: item)
+        if resources.contains(.show) {
+            self.get(path, T.Item.self) { request, item in
+                return try controllerFactory().show(request, item: item)
+            }
         }
 
         //PUT /entities/:id
-        self.put(path, Resource.Item.self) { request, item in
-            return try controllerFactory().update(request, item: item)
+        if resources.contains(.update) {
+            self.put(path, T.Item.self) { request, item in
+                return try controllerFactory().update(request, item: item)
+            }
+            self.patch(path, T.Item.self) { request, item in
+                return try controllerFactory().update(request, item: item)
+            }
         }
 
         //DELETE /intities/:id
-        self.delete(path, Resource.Item.self) { request, item in
-            return try controllerFactory().destroy(request, item: item)
+        if resources.contains(.destroy) {
+            self.delete(path, T.Item.self) { request, item in
+                return try controllerFactory().destroy(request, item: item)
+            }
         }
-
     }
 
-    public final func resource<Resource: ResourceController where Resource: ApplicationInitializable>(path: String, controller: Resource.Type) {
-        resource(path) {
+    public final func resource<T: ResourceController where T: ApplicationInitializable>(
+        path: String,
+        only resources: [Resource] = Resource.all,
+        controller: T.Type
+    ) {
+        resource(path, only: resources) {
             return controller.init(application: self)
         }
     }
 
-    public final func resource<Resource: ResourceController where Resource: DefaultInitializable>(path: String, controller: Resource.Type) {
-        resource(path) {
+    public final func resource<T: ResourceController where T: DefaultInitializable>(
+        path: String,
+        only resources: [Resource] = Resource.all,
+        controller: T.Type
+    ) {
+        resource(path, only: resources) {
             return controller.init()
         }
     }
