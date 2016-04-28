@@ -33,6 +33,7 @@ extension Application {
         self.put(path, handler: handler)
         self.patch(path, handler: handler)
         self.delete(path, handler: handler)
+        self.options(path, handler: handler)
     }
 
     /**
@@ -65,6 +66,15 @@ extension Application {
         //DELETE /intities/:id
         self.delete(path, Resource.Item.self) { request, item in
             return try controllerFactory().destroy(request, item: item)
+        }
+        
+        //options
+        self.options(path) { request in
+            return try controllerFactory().options(request)
+        }
+        
+        self.options(path, Resource.Item.self) { request, item in
+            return try controllerFactory().options(request, item:item)
         }
 
     }

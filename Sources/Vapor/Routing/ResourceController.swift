@@ -20,6 +20,11 @@ public protocol ResourceController {
 
     /// Delete an instance.
     func destroy(request: Request, item: Item) throws -> ResponseRepresentable
+    
+    /// Options.
+    func options(request: Request) throws -> ResponseRepresentable
+    
+    func options(request: Request, item: Item) throws -> ResponseRepresentable
 }
 
 extension ResourceController {
@@ -45,6 +50,15 @@ extension ResourceController {
 
     /// Delete an instance.
     public func destroy(request: Request, item: Item) throws -> ResponseRepresentable {
+        throw Abort.NotFound
+    }
+    
+    /// Options
+    public func options(request: Request) throws -> ResponseRepresentable {
+        throw Abort.NotFound
+    }
+    
+    public func options(request: Request, item: Item) throws -> ResponseRepresentable {
         throw Abort.NotFound
     }
 }
