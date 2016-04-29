@@ -62,15 +62,30 @@ extension SocketIO {
     public func readRequest() throws -> Request {
         let header = try Header(self)
         let requestLine = header.requestLine
-
-        let body: [UInt8]
+        
+        var body: [UInt8] = []
         if let length = header.fields["Content-Length"], let bufferSize = Int(length) {
-            body = try read(bufferSize)
+            
+            var i:UInt64 = 0
+            var readBytes:[UInt8]
+            repeat {
+                do {
+                    readBytes = try read(1024)
+                } catch {
+                    print(error)
+                    break;
+                }
+                
+                body.append(contentsOf:readBytes)
+                i += UInt64(readBytes.count)
+                
+            } while i < UInt64(bufferSize)
         } else {
             body = []
         }
-
-
+        
+        print("body size \(body.count)")
+        
         let method = Request.Method(rawValue: requestLine.method) ?? .Unknown
         let path = requestLine.uri
         // TODO: Figure out whow to get this
@@ -81,7 +96,7 @@ extension SocketIO {
                        headers: header.fieldsArray,
                        body: body)
     }
-
+    
     public func write(response: Response, keepAlive: Bool = false) throws {
         if let response = response as? AsyncResponse {
             try response.writer(self)
