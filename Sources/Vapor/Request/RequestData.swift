@@ -13,6 +13,7 @@ public extension Request {
         internal init(query: [String : String] = [:], bytes: [UInt8]) {
             var mutableQuery = query
 
+            Log.verbose("Trying to parse request data")
             do {
                 self.json = try Json(bytes)
             } catch {
@@ -23,7 +24,7 @@ public extension Request {
                     mutableQuery[key] = val
                 }
             }
-
+            Log.verbose("Parsed request data")
             self.query = mutableQuery
         }
 

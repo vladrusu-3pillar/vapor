@@ -106,5 +106,7 @@ extension SocketIO {
             try write(HeaderEndOfLine)
             try write(response.data)
         }
+        
+        Log.verbose("Wrote response successfully [\(response.status.code)]")
     }
 }
