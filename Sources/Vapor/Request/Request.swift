@@ -89,11 +89,14 @@ public class Request {
         self.path = path.split("?").first ?? ""
         self.address = address
 
+        Log.verbose("reading headers")
         var headersBuffer: [Header.Key: String] = [:]
         for (key, value) in headersArray {
+            Log.verbose("Reading header: \(key)")
             headersBuffer[Request.Header.Key(key)] = value
         }
         headers = headersBuffer
+        Log.verbose("read headers successfully")
 
         self.body = body
         self.cookies = Request.parseCookies(headers["Cookie"])

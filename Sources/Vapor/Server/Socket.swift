@@ -60,6 +60,8 @@ extension SocketIO {
 // MARK: Request / Response
 extension SocketIO {
     public func readRequest() throws -> Request {
+        Log.verbose("Reading request")
+        
         let header = try Header(self)
         let requestLine = header.requestLine
 
@@ -75,6 +77,9 @@ extension SocketIO {
         let path = requestLine.uri
         // TODO: Figure out whow to get this
         let address = "*"
+        
+        Log.verbose("Read request successfully: \(path) [\(method)]")
+        
         return Request(method: method,
                        path: path,
                        address: address,
